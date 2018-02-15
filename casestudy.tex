@@ -2,7 +2,7 @@
 \input{settings}
 \begin{document}
 
-\section{事例研究}
+\section{Case Study}
 本章では、複数の具体的な事例を取り上げ、提案モデルの表現能力の向上を確認する。
 
 \subsection{キャッシュの基本動作}
@@ -30,12 +30,12 @@ run test_store{
 しかし、Response0時には状態はCacheState1に変化しており、対応するCacheDifItem1がResponse0にstoreを指している。
 以上より、図\ref{fig:TestStore}はあるトランザクションにおいて、レスポンスがブラウザキャッシュに格納されている状態を表しており、レスポンスの格納が表現可能であることが確認できる。
 
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=450pt]{./fig/TestStore.eps}
-%\caption{レスポンスを格納する状態の一例}
-%\label{fig:TestStore}
-%\end{figure}
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\hsize]{./fig/TestStore.eps}
+\caption{レスポンスを格納する状態の一例}
+\label{fig:TestStore}
+\end{figure}
 
 \subsubsection{格納レスポンスの再利用}
 レスポンスの再利用動作を確認するため、実行結果からレスポンスの再利用を含む結果を抽出する。
@@ -60,12 +60,12 @@ run test_reuse{
 StateTransaction1では、この格納レスポンスを再利用するイベントCacheReuse0が発生している。
 以上より、図\ref{fig:TestReuse}に示す出力結果から、再利用を伴う動作が表現可能であることが確認できる。
 
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=450pt]{./fig/TestReuse.eps}
-%\caption{格納レスポンスを再利用する状態の一例}
-%\label{fig:TestReuse}
-%\end{figure}
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\hsize]{./fig/TestReuse.eps}
+\caption{格納レスポンスを再利用する状態の一例}
+\label{fig:TestReuse}
+\end{figure}
 
 \subsubsection{格納レスポンスの検証}
 レスポンスの検証動作を確認するため、実行結果からレスポンスの検証を含む結果を抽出する。
@@ -94,12 +94,12 @@ run test_verification{
 以上の流れからStateTransaction1ではResponse0をそのまま再利用しており、検証動作が正常に完了したことを示している。
 よって、検証動作を表現可能であることが確認できる。
 
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=450pt]{./fig/TestVerification.eps}
-%\caption{格納レスポンスの検証が含まれる状態の一例}
-%\label{fig:TestVerification}
-%\end{figure}
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\hsize]{./fig/TestVerification.eps}
+\caption{格納レスポンスの検証が含まれる状態の一例}
+\label{fig:TestVerification}
+\end{figure}
 
 \subsection{中継者の基本動作}
 中継者の動作を確認するため、実行結果から中継者の動作を伴う動作を含む結果を抽出する。
@@ -126,12 +126,12 @@ run test_intermediary{
 中継者は自身に届けられたリクエストやレスポンスを回送する役割を持ち、このHTTPTransaction1がHTTPTransaction0を改装していることを表している。
 以上より、中継者の動作が表現可能であることが確認できる。
 
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=450pt]{./fig/TestIntermediary.eps}
-%\caption{中継者の動作を含む状態の一例}
-%\label{fig:TestIntermediary}
-%\end{figure}
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\hsize]{./fig/TestIntermediary.eps}
+\caption{中継者の動作を含む状態の一例}
+\label{fig:TestIntermediary}
+\end{figure}
 
 \subsection{Same-origin Browser Cache Poisoning Attack}
 \label{sec:same-origin-bcp}
@@ -151,55 +151,15 @@ Same-origin BCP攻撃は、攻撃者の持つ中継者が攻撃対象である�
 また、ブラウザに悪影響が及ぶのは「5.改ざんレスポンスをキャッシュに格納」時と「6.同じファイルの利用時に改ざんレスポンスを再利用」時である。
 また、6は改ざんレスポンスがキャッシュ内に格納されている間、何度も繰り返される可能性がある。
 
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=400pt]{./fig/SameBCP_flow.eps}
-%\caption{Same-origin Browser Cache Poisoning Attackの攻撃フロー}
-%\label{fig:SameBCP_flow}
-%\end{figure}
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\hsize]{./fig/SameBCP_flow.eps}
+\caption{Same-origin Browser Cache Poisoning Attackの攻撃フロー}
+\label{fig:SameBCP_flow}
+\end{figure}
 
-提案モデルによるSame-origin BCP攻撃の表現を確認するため、実行結果から図\ref{fig:SameBCP_flow}のフローを含む結果を抽出する。
-抽出にはCode\ref{code:Same_origin_BCP}を用いる。
-実行結果として、図\ref{fig:SameBCP_flow}に従ったフローと、攻撃者によるヘッダとボディの改ざんを含む状態が得られた。
+提案モデルの実行結果から、図\ref{fig:SameBCP_flow}のフローと攻撃者によるレスポンスのヘッダとボディの改ざんを含む状態が得られた。
 このことから、提案モデルがSame-origin BCP攻撃を表現できることを確認した。
-
-\begin{lstlisting}[caption=Same-origin BCP攻撃の表現, label=code:Same_origin_BCP]
-run Same_origin_BCP{
-	#HTTPClient = 1
-	#HTTPServer = 1
-	#HTTPIntermediary = 1
-	#PrivateCache = 1
-	#PublicCache = 0
-
-	#HTTPRequest = 3
-	#HTTPResponse = 2
-	#CacheReuse = 1
-
-	#Principal = 3
-	#Alice = 2
-
-	some tr,tr',tr'':HTTPTransaction | {
-		tr'.request.current in tr.request.current.*next
-		tr.response.current in tr'.response.current.*next
-		tr''.request.current in tr.response.current.*next
-		some tr''.re_res
-
-		tr.request.from in HTTPClient
-		tr.request.to in HTTPIntermediary
-
-		tr'.request.from in HTTPIntermediary
-		tr'.request.to in HTTPServer
-
-		tr''.request.from in HTTPClient
-
-		tr.response.body != tr'.response.body
-	}
-
-	some c:HTTPClient | c in Alice.httpClients
-	some s:HTTPServer | s in Alice.servers
-	no i:HTTPIntermediary | i in Alice.servers
-} for 6
-\end{lstlisting}
 
 \subsection{Cross-site Request Forgery Attack}
 本節では、提案モデルでCross-site Request Forgery Attack\cite{cookie-model}（以下、CSRF攻撃とする）が表現可能であるかを確認する。
@@ -211,57 +171,14 @@ CSRF攻撃は攻撃対象となるサーバと攻撃者が保有するサーバ�
 本攻撃における攻撃者のふるまいは、自身が保有するサーバにアクセスしてきたブラウザが攻撃対象であるサーバへの「3.リクエスト」を送信を誘発するように「2.レスポンス」を返すことである。
 また、この攻撃者からのレスポンスの内容によって、ブラウザから送信されるリクエストの内容も操作される。
 
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=400pt]{./fig/CSRF_flow.eps}
-%\caption{Cross-site Request Forgery Attackの攻撃フロー}
-%\label{fig:CSRF_flow}
-%\end{figure}
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\hsize]{./fig/CSRF_flow.eps}
+\caption{Cross-site Request Forgery Attackの攻撃フロー}
+\label{fig:CSRF_flow}
+\end{figure}
 
-提案モデルによるCSRF攻撃の表現を確認するため、実行結果から図\ref{fig:CSRF_flow}のフローを含む結果を抽出する。
-抽出にはCode\ref{code:CSRF}を用い、その実行結果として図\ref{fig:CSRF_flow}に示す攻撃フローを含む結果が出力された。
-スペースの都合上、これを一部簡略化し図\ref{fig:CSRF_alloy}に示す。
-図\ref{fig:CSRF_alloy}において、Server0が攻撃者のサーバ、Server1が攻撃対象のサーバを表している。
-また、HTTPTransaction0はBrowserがServer0にアクセスした通信を、HTTPTransaction1はそれに誘発されたBrowserとServer1の通信を表している。
-HTTPTransaction1はHTTPTransaction0にcauseの関係を持ち、これがHTTPTransaction0に誘発されていることを示している。
-以上のことから、CSRF攻撃を含む出力結果が得られているため、提案モデルがCSRF攻撃を表現できることを確認した。
-
-\begin{lstlisting}[caption=CSRF攻撃の表現, label=code:CSRF]
-run CSRF{
-	#HTTPRequest = 2
-	#HTTPResponse = 2
-
-	#HTTPClient = 1
-	#HTTPServer = 2
-	#HTTPIntermediary = 0
-
-	#Principal = 3
-	#Alice = 2
-
-	all p:Principal |
-		one c:HTTPConformist |
-			c in p.(servers + httpClients)
-	all b:Browser | b in Alice.httpClients
-
-	one tr1,tr2:HTTPTransaction|{
-		tr2.request.current in tr1.response.current.*next
-
-		tr1.request.to !in Alice.servers
-		tr2.request.to in Alice.servers
-
-		tr2.cause = tr1
-
-		tr1.request.uri != tr2.request.uri
-	}
-} for 4
-\end{lstlisting}
-
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=450pt]{./fig/CSRF_alloy.eps}
-%\caption{CSRF攻撃のフローを含む状態の一例}
-%\label{fig:CSRF_alloy}
-%\end{figure}
+提案モデルの実行結果から図\ref{fig:CSRF_flow}のフローを含む状態が得られたため、提案モデルがCSRFを表現できることを確認した。
 
 \subsection{Cross-origin Browser Cache Poisoning Attack}
 本節では、提案モデルでCross-origin Browser Cache Poisoning Attack\cite{bcpattack}（以下、Cross-origin BCP攻撃とする）が表現可能であるかを確認する。
@@ -281,17 +198,15 @@ Cross-origin BCP攻撃は図\ref{fig:CrossBCP_flow}に示す攻撃フローで�
 したがって、図\ref{fig:CrossBCP_flow}のフローによって、攻撃者が指定する任意のファイルの改ざんを行い、そのレスポンスをブラウザキャッシュに格納させることができる。
 また、このフローの成功後はサーバ1,2に無関係な通信であったとしても、改ざんレスポンスに記述されているファイルを利用する際には再利用が発生し、ブラウザは悪影響を受ける。
 
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=450pt]{./fig/CrossBCP_flow.eps}
-%\caption{Cross-origin Browser Cache Poisoning Attackの攻撃フロー}
-%\label{fig:CrossBCP_flow}
-%\end{figure}
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\hsize]{./fig/CrossBCP_flow.eps}
+\caption{Cross-origin Browser Cache Poisoning Attackの攻撃フロー}
+\label{fig:CrossBCP_flow}
+\end{figure}
 
-提案モデルによるCross-origin BCP攻撃の表現を確認するため、実行結果から図\ref{fig:CrossBCP_flow}を含む結果を抽出する。
-結果として、図\ref{fig:CrossBCP_flow}に存在する五つの通信を表現された状態を出力した。
+提案モデルの実行結果から、図\ref{fig:CrossBCP_flow}に存在する五つの通信を表現された状態を出力した。
 このことから、提案モデルがCross-origin BCP攻撃を表現できることを確認した。
-また、スペースの都合上、実行コードは巻末付録Code\ref{code:Cross_origin_BCP}に記載する。
 
 \subsection{Web Cache Deception Attack}
 本節では、提案モデルでWeb Cache Deception Attack\cite{WCD}（以下、WCD攻撃とする）が表現可能であるかを確認する。
@@ -303,64 +218,14 @@ WCD攻撃は図\ref{fig:WCD_flow}に示す攻撃フローで実現される。
 まず、攻撃者にアクセス権の無いファイルに対して、正当なユーザに中継者を経由してアクセスさせる。
 この際に、その「3.レスポンス」が中継者のキャッシュに格納された場合、攻撃者はその中継者を含む経路でそのファイルに対する「5.リクエスト」を送信することで、中継者のキャッシュによる「6.格納レスポンスの再利用」が発生しそのファイルを取得できる。
 
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=450pt]{./fig/WCD_flow.eps}
-%\caption{Web Cache Deception Attackの攻撃フロー}
-%\label{fig:WCD_flow}
-%\end{figure}
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\hsize]{./fig/WCD_flow.eps}
+\caption{Web Cache Deception Attackの攻撃フロー}
+\label{fig:WCD_flow}
+\end{figure}
 
-提案モデルによるWCD攻撃の表現を確認するため、実行結果から図\ref{fig:WCD_flow}のフローを含む結果を抽出する。
-抽出にはCode\ref{code:WCD}を用い、その実行結果として図\ref{fig:WCD_flow}に示す攻撃フローを含む結果が出力された。
-スペースの都合上、これを一部簡略化し図\ref{fig:WCD_alloy}に示す。
-図\ref{fig:WCD_alloy}において、図\ref{fig:WCD_flow}の「1.リクエスト」と「2.リクエスト」の通信はStateTransaction0,1でそれぞれ表されている。
-ここで、Response1のボディにはTokenが付与されており、これが攻撃者がアクセス権を持たないファイルを示している。
-このResponse1は、その発生時刻Time2で中継者のキャッシュに保存され、攻撃者による通信StateTransaction2において再利用されている。
-従って、この出力結果は攻撃者が本来権限を持たないファイルを中継者のキャッシュによる再利用を用いて取得していることを表している。
-以上のことから、WCD攻撃を含む出力結果が得られているため、提案モデルがWCD攻撃を表現できることを確認した。
-
-\begin{lstlisting}[caption=WCD攻撃の表現, label=code:WCD]
-run Web_Cache_Deception{
-	#HTTPRequest = 3
-	#HTTPResponse = 2
-	#CacheReuse = 1
-
-	#HTTPClient = 2
-	#HTTPServer = 1
-	#HTTPProxy = 1
-	#Cache = 1
-
-	#Principal = 4
-	#Alice = 3
-
-	all c:Cache | c in HTTPProxy.cache
-
-	all p:Principal |
-		one c:HTTPConformist |
-			c in p.(servers + httpClients)
-	all i:HTTPProxy | i in Alice.servers
-	all s:HTTPServer | s in Alice.servers
-
-	one tr1,tr2,tr3:HTTPTransaction |{
-		tr1.request.from in Alice.httpClients
-		tr1.request.to in HTTPProxy
-
-		tr2.request.from in HTTPProxy
-		tr2.request.to in HTTPServer
-
-		(tr3.request.from !in Alice.httpClients and tr3.request.from in HTTPClient)
-		tr3.request.to in HTTPProxy
-
-		one tr3.re_res
-	}
-} for 6
-\end{lstlisting}
-
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=450pt]{./fig/WCD_alloy.eps}
-%\caption{WCD攻撃のフローを含む状態の一例}
-%\label{fig:WCD_alloy}
-%\end{figure}
+提案モデルの実行結果から、図\ref{fig:WCD_flow}のフローを含む状態を出力した。
+このことから、提案モデルがWCD攻撃を表現できることを確認した。
 
 \end{document}

@@ -8,21 +8,14 @@
 本研究では基礎モデルで包括されていないウェブの要素としてキャッシュに注目する。
 \ref{sec:introduction}章に述べた通りキャッシュを利用する攻撃が数多く存在しており、また、キャッシュは一般的なユーザにも利用されるウェブの構成要素である。
 したがって、キャッシュに関連した脆弱性はウェブの利用者に多大な影響を与えるため、ウェブの安全性を解析する上で不可欠な要素である。
-本研究では、キャッシュを包括するウェブセキュリティモデルを\ref{sec:ProposedModel-TemporalLogic}章で述べた記述法を用いて実装する。
 
-\subsection{提案モデルの能力}
-\label{sec:ProposedModel-Power}
+\subsection{提案モデルの包括内容}
+\label{sec:ProposedModel-Content}
 提案モデルは基礎モデルを基に作成する。
-基礎モデルの能力は\ref{sec:based-model-power}節で述べており、以下に基礎モデルからの提案モデルでの変更点を各項目ごとに記述する。
+基礎モデルからの変更点を以下に述べる。
 
-\subsubsection{対象のシステムの構造と動作}
-提案モデルでは、キャッシュの動作を包括することを目標とする。
-しかし、キャッシュの動作を表現するには中継者やヘッダなど、基礎モデルで包括している項目では不足している要素がある。
-したがって、提案モデルにはキャッシュの動作に加えて、その動作に使用されるキャッシュ以外の要素についても追加する。
-以下に追加する要素を順に述べる。
-
-\subsubsection{キャッシュの動作}
-キャッシュはクライアント、サーバ、中継者のいずれかに属し、\ref{sec:cache}節で述べた「格納」、「再利用」、「検証」という三つの基本動作が可能である。
+\subsubsection{キャッシュ}
+キャッシュはクライアント、サーバ、中継者のいずれかに属し、「格納と削除」、「再利用」、「検証」という三つの基本動作が可能である。
 また、これらのキャッシュの動作はヘッダによって制御される。
 
 \subsubsection{中継者}
@@ -41,18 +34,18 @@ HTTP/1.1において、中継者は「プロキシ」、「ゲートウェイ」
 \centering
 \caption{提案モデルで新たに包括するヘッダ}
 \label{tb:ProposedModel-Headers}
-\begin{tabular}{lll}
+\begin{tabular}{ll}
 \hline
-ヘッダ名 & 用途 & 関連するキャッシュの動作 \\
+ヘッダ名 & 目的 \\
 \hline
-if-modified-since & 条件付きリクエストに使用 & 検証 \\
-if-none-match & 条件付きリクエストに使用 & 検証 \\
-etag & レスポンス内のコンテンツの固有値 & 検証 \\
-last-modified & レスポンス内のコンテンツの最終更新日 & 検証 \\
-age & レスポンスの経過時間 & 格納・再利用 \\
-cache-control & キャッシュの動作全般を制御 & 格納・再利用・検証 \\
-date & レスポンスの生成時刻 & 格納・再利用 \\
-expire & レスポンスの有効期限 & 格納・再利用 \\
+if-modified-since & 条件付きリクエストに使用 \\
+if-none-match & 条件付きリクエストに使用 \\
+etag & レスポンス内のコンテンツの固有値 \\
+last-modified & レスポンス内のコンテンツの最終更新日 \\
+age & レスポンスの経過時間 \\
+cache-control & キャッシュの動作全般を制御 \\
+date & レスポンスの生成時刻 \\
+expire & レスポンスの有効期限 \\
 \hline
 \end{tabular}
 \end{table}
@@ -69,15 +62,15 @@ expire & レスポンスの有効期限 & 格納・再利用 \\
 オプション名 & 用途 \\
 \hline
 max-age & レスポンスの有効期限を設定 \\
-smax-age & 共有キャッシュでの有効期限を設定（その他の設定より優先） \\
+smax-age & 共有キャッシュでの有効期限を設定（最優先） \\
 no-cache & 検証無しに再利用できない \\
 no-store & そのレスポンスを格納を禁止 \\
 no-transform & コンテンツの編集を禁止 \\
 max-stale & 期限切れである場合に許容できる時間 \\
 min-fresh & 有効期限まで最低残り時間 \\
 only-if-cached & キャッシュの再利用でのみ応答 \\
-must-revalidate & 有効期限切れである場合、検証無しに再利用できない \\
-proxy-revalidate & must-revalidateと同じ（個人キャッシュ以外で有効） \\
+must-revalidate & 有効期限切れの場合、検証無しに再利用できない \\
+proxy-revalidate & must-revalidateと同じ（個人キャッシュ以外） \\
 public & 共有キャッシュに格納してよい \\
 private & 個人キャッシュに格納してよい \\
 \hline
@@ -97,53 +90,35 @@ private & 個人キャッシュに格納してよい \\
 以下に、三種類の攻撃者それぞれに付与する能力を示す。
 
 \begin{itemize}
-\item Web Attacker\\
-Web Attackerは複数の中継者を所有することができる。
+\item Web Attackerは複数の中継者を所有することができる。
 しかし、その通信内容の編集や通信の遮断をすることはできず、内容をそのままに回送することのみ可能とする。
 ただし、暗号化されていない場合、その通信内容を盗聴することは可能とする。
 また、保有するクライアント、サーバ、中継者にキャッシュを搭載し、仕様通りに運用できる。
-\item Network Attacker\\
-Network Attackerは上記のWeb Attackerの能力を全て持つ。
+\item Network Attackerは上記のWeb Attackerの能力を全て持つ。
 これに加えて、中継者を用いた暗号化されていない通信内容の改ざんと、通信の遮断は可能とする。
-\item Gadget Attacker\\
-Gadget Attackerは中継者とキャッシュに関する能力は上記のNetwork Attackerと同様の能力を持つ。
+\item Gadget Attackerは中継者とキャッシュに関する能力は上記のNetwork Attackerと同様の能力を持つ。
 \end{itemize}
-
-また、正当なユーザのふるまいに対する制限に特に変更は加えない。
 
 \subsubsection{安全性要件}
 基礎モデルには二つの安全性要件が設定されており、これらの変更はない。
 ただし、Security Invariantsにおける「ウェブの各構成要素の仕様を侵さない」という文言にキャッシュや中継者の仕様を含む。
 
-\subsection{キャッシュの実装}
-\ref{sec:ProposedModel-Power}節で述べた提案モデルの能力を基に、時相論理を用いてキャッシュを表現する。
-
-\subsubsection{キャッシュの作成}
+\subsection{キャッシュの作成}
+\label{sec:CacheClass}
 キャッシュを表すクラスをCode\ref{code:CacheClass}のように記述する。
 抽象クラスとしてCacheクラスを定義し、個人キャッシュを表すPrivateCacheクラス、共有キャッシュを表すPublicCacheクラスを定義する。
 また、CacheクラスにはCode\ref{code:LimitedCacheClass}に記述する制限を付与する。
 付与される制限は以下の二点である。
 \begin{itemize}
-\item どのネットワーク上の端末にも属さないキャッシュは存在しない（1-4行目）
-\item 個人キャッシュはクライアントに属し、共有キャッシュはサーバ、もしくは中継者に属する（6-9行目）
+\item どのネットワーク上の端末にも属さないキャッシュは存在しない
+\item 個人キャッシュはクライアントに属する
+\item 共有キャッシュはサーバ、もしくは中継者に属する
 \end{itemize}
 
 \begin{lstlisting}[caption=Cacheクラス, label=code:CacheClass]
 abstract sig Cache{}
 sig PrivateCache extends Cache{}
 sig PublicCache extends Cache{}
-\end{lstlisting}
-
-\begin{lstlisting}[caption=Cacheクラスの制限, label=code:LimitedCacheClass]
-fact noOrphanedCaches {
-	all c:Cache |
-		one e:NetworkEndpoint | c = e.cache
-}
-
-fact PublicAndPrivate{
-	all pri:PrivateCache | pri in HTTPClient.cache
-	all pub:PublicCache | (pub in HTTPServer.cache) or (pub in HTTPIntermediary.cache)
-}
 \end{lstlisting}
 
 また、キャッシュを搭載するため、Code\ref{code:EndPoint}のように、構成要素のクラスを変更する。
@@ -155,25 +130,19 @@ abstract sig HTTPConformist extends NetworkEndpoint{
 }
 \end{lstlisting}
 
-\subsubsection{キャッシュの状態を表すクラス}
-\label{sec:CacheClass}
-%edit:この部分をもっと詳しく
-Code\ref{code:CacheStateClass}のように、時間軸上の各時点におけるキャッシュの状態を表現するクラスを作成する。
-このクラスはStateクラスを継承し、作成した時相論理に関する述語を利用可能な形式とする。
-また、この形式を用いるために、「不変項目」と「変化項目」を定義する必要がある。
-まず、不変項目について考える。
-キャッシュの状態遷移は同一のキャッシュの状態間で発生するため、不変項目はキャッシュとする。
-これに従い、23行目のように不変項目を表すEqItemクラスを継承したCacheEqItemクラスを定義し、要素としてCacheクラスを定義する。
-一方で、キャッシュ内の格納レスポンスの変化を表現するために、変化項目は格納レスポンスとする。
-したがって、24行目のように変化項目を表すDifItemクラスを継承したCacheDifItemクラスを定義し、要素としてレスポンスの集合を定義する。
-これにより、CacheStateクラスはあるキャッシュのある時点での格納レスポンスを表すクラスとして作成される。
+\subsection{キャッシュの状態を表現するクラス}
+\label{sec:CacheState}
+Code\ref{code:CacheStateClass}のように、時間軸上の各時点におけるキャッシュの状態を表現するCacheStateクラスを作成する。
+このCacheStateクラスはStateクラスを継承し、作成した時相論理に関する述語を利用可能な形式とする。
+ここで、Stateクラスで定義した「不変項目」はCode\ref{code:CacheClass}で定義したCacheクラス、「変化項目」は格納レスポンスを表現するためのレスポンスの有限集合とする。
+これに従い、不変項目を表すCacheEqItem、変化項目を表すCacheDifItemをCode\ref{code:CacheStateClass}に定義する。
 
-また、Code\ref{code:CacheStateClass}の5-22行目では、CacheStateに以下の制限が付与される。
-これは、格納されるレスポンスの条件であり、HTTP/1.1の仕様に従っている。
+また、Code\ref{code:CacheStateClass}では省略しているが、CacheStateには以下の制限を付与する。
+これは、レスポンスがキャッシュに格納される場合に満たされなければならないの条件であり、HTTP/1.1の仕様に従っている。
 \begin{itemize}
-\item 個人キャッシュの格納レスポンスのヘッダには、cache-controlヘッダのmax-ageオプション、もしくはdateヘッダとexpireヘッダが一つ含まれる
-\item 共有キャッシュの格納レスポンスのヘッダには、cache-controlヘッダのmax-ageオプション、s-maxageオプション、dateヘッダとexpireヘッダのいずれかが一つ含まれる
-\item キャッシュの格納レスポンスには、必ずageヘッダが一つ含まれる
+\item 個人キャッシュに格納されている場合、cache-controlヘッダのmax-ageオプション、もしくはdateヘッダとexpireヘッダが一つ含まれる
+\item 共有キャッシュに格納されている場合、cache-controlヘッダのmax-ageオプション、s-maxageオプション、dateヘッダとexpireヘッダのいずれかが一つ含まれる
+\item キャッシュに格納されている場合、必ずageヘッダが一つ含まれる
 \end{itemize}
 
 \begin{lstlisting}[caption=キャッシュの状態を表すクラス, label=code:CacheStateClass]
@@ -181,54 +150,23 @@ sig CacheState extends State{}{
 	eq in CacheEqItem
 	dif in CacheDifItem
 
-	eq.cache in PrivateCache implies
-        all res:HTTPResponse | res in dif.store implies
-                {
-                    (one op:Maxage | op in res.headers.options) or
-                    (one d:DateHeader, e:ExpiresHeader | d in res.headers and e in res.headers)
-                }
-
-    eq.cache in PublicCache implies
-        all res:HTTPResponse | res in dif.store implies
-                {
-                    (one op:Maxage | op in res.headers.options) or
-                    (one op:SMaxage | op in res.headers.options) or
-                    (one d:DateHeader, e:ExpiresHeader | d in res.headers and e in res.headers)
-                }
-
-    all res:HTTPResponse | res in dif.store implies
-        one h:AgeHeader | h in res.headers
+	...
 }
 sig CacheEqItem extends EqItem{cache: one Cache}
 sig CacheDifItem extends DifItem{store: set HTTPResponse}
 \end{lstlisting}
 
-さらに、これらに加えてCacheState、StateTransactionクラスにはCode\ref{code:LimitedCacheStateClass}に記す条件を付与する。
-これらは、モデルをAlloy上で実装する際に必要となる項目である。
-まず、1-4行目では同一内容のStateのインスタンスが複数存在しないことを表している。
-もし、同一内容のインスタンスが複数存在することを許した場合、単純なインスタンスの比較で状態変化を判定できない。
-この制限の導入により状態変化の比較が容易となる。
-また、10-14行目では、キャッシュが搭載されている端末が通信を行った場合に、そのキャッシュの状態が必ず表現されることを表している。
-この記述により、通信が行われた場合にはそのリクエストとレスポンス時点での状態がCacheStateのインスタンスとして必ず表現され、時間軸全体を通して変化を捉えることが可能になる。
-\begin{lstlisting}[caption=CacheStateクラスの制限, label=code:LimitedCacheStateClass]
-fact noMultipleItems{
-	no disj i,i':CacheEqItem | i.cache = i'.cache
-	no disj i,i':CacheDifItem | i.store = i'.store
-}
+また、これらの他に以下の制限を加える。
+これらの制限は直接的に解析結果に影響するものではないが、可能な限りインスタンスの数を減らし解析を容易にするための工夫である。
 
-fact CacheInTransaction{
-	all tr:HTTPTransaction |
-		(some tr.request.(from + to).cache implies tr in StateTransaction)
+\begin{itemize}
+\item 同一内容のStateのインスタンスが複数存在しない。異なる時刻で同じ状態を取る場合には同じStateクラスに統合される
+\item キャッシュが搭載されている端末が通信を行った場合に、そのキャッシュの状態が必ずインスタンスとして表現される
+\item キャッシュに格納されている場合、必ずageヘッダが一つ含まれる
+\end{itemize}
 
-	all str:StateTransaction |{
-		str.beforeState.eq.cache = str.request.(from + to).cache
-		some str.(request + re_res) implies str.afterState.eq.cache = str.beforeState.eq.cache
-	}
-}
-\end{lstlisting}
-
-\subsubsection{キャッシュの動作}
-\ref{sec:CacheClass}節で定義したCacheStateクラスを用いて、キャッシュの動作を記述する。
+\subsection{キャッシュの動作}
+\ref{sec:CacheClass}節で定義したCacheStateクラスを用いて、\ref{sec:ProposedModel-Content}節で述べたキャッシュの基本的な３つの動作をAlloyで表現する。
 
 \subsubsection{レスポンスの格納と削除}
 提案モデルにおいて、キャッシュにおけるレスポンスの格納と削除は以下のように動作するものとする。
@@ -254,31 +192,32 @@ CacheState0は変化項目としてCacheDifItem0を持ち、CacheState1はCacheD
 この場合、CacheState2は変化項目としてCacheDifItem0を持つため、上述の格納の場合と状態変化が逆になる。
 つまり、CacheState1の時点でCache0が格納していたResponse0を、CacheState2の時点では削除していることを表している。
 
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=450pt]{./fig/ProposedModel-ResponseStoreDelete.eps}
-%\caption{キャッシュの格納と削除の表現}
-%\label{fig:ProposedModel-ResponseStoreDelete}
-%\end{figure}
+\begin{figure}[htb]
+\centering
+\includegraphics[width=\hsize]{./fig/ProposedModel-ResponseStoreDelete.eps}
+\caption{キャッシュの格納と削除の表現}
+\label{fig:ProposedModel-ResponseStoreDelete}
+\end{figure}
 
 また、以上の内容を提案モデルではCode\ref{code:StoreResponse}のように実装している。
-格納と削除は主に6-10行目で表されており、状態postがリクエスト時の状態である場合は、postの格納レスポンスの集合はpostの前状態であるpreの格納レスポンスの集合の部分集合となる。
-この二状態の関係を部分集合とすることで、前状態の格納レスポンスの一部がなくなることを容認し、削除の動作を表現している。
-また、状態postがレスポンス時の状態である場合は、上述の削除に加え、格納が行われている可能性がある。
-したがって、postの格納レスポンスの集合を、preの格納レスポンスにそのトランザクションでのレスポンスを加えた和集合の部分集合とする。
-これにより、削除に加え、レスポンス時における格納を表現している。
+すべてのCacheStateクラスのpostに対して、述語LastStateを用いて直前状態を取得し、それをpreとする。
+ここでpostがリクエスト時の状態である場合、postの格納レスポンスの集合はpreの格納レスポンスの集合の補集合となる。
+ここで、補集合とすることで前状態の格納レスポンスの一部がなくなることを容認し、格納レスポンスの削除を表現している。
+また、postがレスポンス時の状態である場合、postの格納レスポンスの集合はpreの格納レスポンスの集合にpost時のレスポンスを加えた集合の補集合となる。
+ここで、post時のレスポンスが集合に追加されることが、レスポンスの格納動作を表現している。
+
 ただしこの記述のみでは各時点でのキャッシュの状態はその前状態に依存することになり、初期状態が無条件となる。
 実際には、この場合の初期状態とはウェブ上における様々な通信が行われる前の状態を示すため、初期状態でキャッシュにレスポンスが格納されていることはない。
-したがって、初期状態の格納レスポンスの集合を空集合とする制限を、2-4行目で記述している。
+したがって、初期状態の格納レスポンスの集合を空集合とする制限を、述語InitailStateを用いて記述している。
 
 \begin{lstlisting}[caption=レスポンスの格納と削除の表現, label=code:StoreResponse]
 fact flowCacheState{
 	all cs:CacheState |
-		FirstState[cs] implies
+		InitialState[cs] implies
 			no cs.dif.store
 
 	all pre, post:CacheState, str:StateTransaction |
-		JustBeforeState[pre, post, str] implies {
+		LastState[pre, post, str] implies {
 			post in str.beforeState implies post.dif.store in pre.dif.store
 			post in str.afterState implies post.dif.store in (pre.dif.store + str.response)
 		}
@@ -296,18 +235,18 @@ fact flowCacheState{
 上記で定めたレスポンスの再利用は、提案モデル内では本来発生するレスポンスの代わりとなって発生する。
 したがって、既存モデルにおいてレスポンスを表すHTTPResponseクラスと同列に、CacheReuseクラスを定義する(Code\ref{code:CacheReuseClass}参照)。
 HTTPResponseクラスはHTTPプロトコル上のイベントを表すHTTPEventクラスを継承しているため、CacheReuseクラスもHTTPEventクラスを継承する。
-そして、CacheReuseクラスにある一つのレスポンスを関連付けることで、どのレスポンスを再利用したかを表現できる（5行目）。
+そして、CacheReuseクラスにある一つのレスポンスを関連付けることで、どのレスポンスを再利用したかを表現する。
 また、HTTPEventクラスにおいて、どの端末からどの端末に対するイベントであるかは定義されており、これを利用することで再利用したレスポンスの送信元と送信先を表現する。
 しかし、HTTPEventクラスでは送信元と送信先の他に、そのイベントに含まれるヘッダとボディが定義されている。
-実際のレスポンスの再利用では、送信されるのは再利用するレスポンスのヘッダとボディであり、それは上記のレスポンスとの関連付け（5行目）で表現されているためこの二項目は不必要である。
+実際のレスポンスの再利用では、送信されるのは再利用するレスポンスのヘッダとボディであり、それは上記の再利用対象のレスポンスとの関連付けで表現されているためこの二項目は不必要である。
 したがって、CacheReuseクラスとヘッダとボディの関係性は無視することができるが、ヘッダやボディを表すインスタンスは非常に多いため、無制限とした場合には無駄な計算時間を要することとなる。
-このような要因から、7,8行目のようにCacheReuseクラスのヘッダとボディは空集合とし、計算時間の短縮を図る。
+このような要因から、CacheReuseクラスのヘッダとボディは空集合とし、計算時間の短縮を図る。
 
 \begin{lstlisting}[caption=CacheReuseクラス, label=code:CacheReuseClass]
 sig HTTPResponse extends HTTPEvent {
 	statusCode: one Status
 }
-sig CacheReuse extends NetworkEvent{
+sig CacheReuse extends HTTPEvent{
 	target: one HTTPResponse
 }{
 	no headers
@@ -315,47 +254,15 @@ sig CacheReuse extends NetworkEvent{
 }
 \end{lstlisting}
 
-上記で定義したCacheReuseクラスを用いて再利用を表現するため、Code\ref{code:happenCacheReuse}のように実際のキャッシュの動作に基づいた条件を付加する。
-付加した条件は以下の通りである。
+上記で定義したCacheReuseクラスを用いて再利用を表現するため、CacheReuseイベントが発生する条件を、実際のキャッシュの動作に基づいて以下のように作成する。
 \begin{itemize}
-\item 再利用レスポンスの送信先は、その再利用を発生させたリクエストの送信元である（5行目）
-\item 再利用レスポンスの送信元は、その再利用を発生させたリクエストの送信元か送信先のいずれかである（6行目）
-\item 再利用を行うキャッシュの再利用直前の状態において、再利用するレスポンスが格納レスポンスに含まれている（8-13行目）
-\item 再利用するレスポンスと、その再利用を発生させたリクエストが表すURIが一致している（15行目）
+\item 再利用レスポンスの送信先は、その再利用を発生させたリクエストの送信元である
+\item 再利用レスポンスの送信元は、その再利用を発生させたリクエストの送信元か送信先のいずれかである
+\item 再利用を行うキャッシュの再利用直前の状態において、再利用するレスポンスが格納レスポンスに含まれている
+\item 再利用するレスポンスと、その再利用を発生させたリクエストが表すURIが一致している
 \end{itemize}
 
-\begin{lstlisting}[caption=CacheReuseの発生条件, label=code:happenCacheReuse]
-fact happenCacheReuse{
-	all reuse:CacheReuse | one str:StateTransaction |
-		{
-			str.re_res = reuse
-			reuse.to = str.request.from
-			reuse.from in str.request.(from + to)
-
-			some pre, post:CacheState |
-				(post in str.afterState and JustBeforeState[pre, post, str]) implies
-					{
-						reuse.target in pre.dif.store
-						reuse.from.cache = pre.eq.cache
-					}
-
-			reuse.target.uri = str.request.uri
-		}
-}
-\end{lstlisting}
-
 上記の条件の二点目において、再利用レスポンスの送信元がリクエストの送信元となる場合を認めるのは、そのリクエストを送信した端末のキャッシュによるレスポンスの再利用を想定するためである。
-例えば、図\ref{fig:BrowserCacheReuse}のようなブラウザキャッシュによるレスポンスの再利用である。
-図\ref{fig:BrowserCacheReuse}はブラウザがサーバにリクエストを送信する際に、ブラウザのキャッシュ内に既に格納されているレスポンスResponse0を再利用する流れを表している。
-このような場合には、CacheReuse0のfromとtoは同一のBrowser0を指すことになる。
-二点目の条件は、このような状況を想定している。
-
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=350pt]{./fig/BrowserCacheReuse.eps}
-%\caption{ブラウザキャッシュでのレスポンスの再利用の一例}
-%\label{fig:BrowserCacheReuse}
-%\end{figure}
 
 \subsubsection{格納レスポンスの検証}
 \label{sec:CacheVerification}
@@ -366,12 +273,8 @@ fact happenCacheReuse{
 条件付きリクエストは、if-modified-sinceヘッダかif-none-matchヘッダのいずれかが含まれるリクエストのことを指す。
 これらのヘッダで送信される値を用いることで、オリジンサーバは格納レスポンスが最新のものと同一であるかを判定でき、再利用の可否をレスポンスで送信する。
 検証が正常に終了した場合、このレスポンスの状態コードは304か200となる。
-\begin{itemize}
-\item 状態コードが304である場合 \\
-そのヘッダやボディの値に関係なくキャッシュは格納レスポンスを再利用できる
-\item 状態コードが200である場合 \\
-格納レスポンスは再利用不可であり、このレスポンスをキャッシュに格納して再利用する
-\end{itemize}
+状態コードが304である場合は、そのヘッダやボディの値に関係なくキャッシュは格納レスポンスを再利用できる。
+状態コードが200である場合は、格納レスポンスは再利用不可であり、このレスポンスをキャッシュに格納して再利用する。
 また、検証後はどちらの場合も再利用可能なレスポンスの一つを除いて、同一のURIに対するレスポンスはキャッシュ内には存在しない。
 \end{itembox}
 
@@ -386,91 +289,27 @@ fact happenCacheReuse{
 述語checkVerificationは、strが再利用によって応答されているトランザクションであり、かつ、strのリクエストと再利用の間に条件付きリクエストを含むトランザクションが成立している場合に真となるように作成し、その論理は以下のように表せる。
 
 \begin{itembox}[l]{述語checkVerification}
-入力であるStateTransactionクラスのインスタンスであるstrが再利用を行っており、かつ、以下を満たすStateTranactionのクラスのインスタンスstr'が存在する場合に、本述語は真となる。
+入力であるStateTransactionクラスのインスタンスstrが再利用を行っており、かつ、以下を満たすStateTranactionのクラスのインスタンスstr'が存在する場合に、本述語は真となる。
 \begin{itemize}
-\item strとstr'は異なるトランザクションである（6行目）
-\item str'のレスポンスが存在する。つまり、通信が正常に完了している（7行目）
-\item str'のリクエストはstrの後に発生し、str'のレスポンスはstrの再利用より前に発生している（9,10行目）
-\item str'のリクエストは、strの再利用が行われるキャッシュが属する端末から、再利用するレスポンスの送信元に送信されている（12,13行目）
-\item strとstr'での要求URIが同一である（14行目）
-\item 検証対象の格納レスポンスにetagヘッダかlast-modifiedヘッダが含まれている（16-19行目）
-\item 検証対象の格納レスポンスにetagヘッダが含まれている場合、str'のリクエストにif-none-matchヘッダが含まれる（21,22行目）
-\item 検証対象の格納レスポンスにlast-modifiedヘッダが含まれている場合、str'のリクエストにif-modified-sinceヘッダが含まれる（23,24行目）
+\item strとstr'は異なるトランザクションである
+\item str'のレスポンスが存在する。つまり、通信が正常に完了している
+\item str'のリクエストはstrの後に発生し、str'のレスポンスはstrの再利用より前に発生している
+\item str'のリクエストは、strの再利用が行われるキャッシュが属する端末から、再利用するレスポンスの送信元に送信されている
+\item strとstr'での要求URIが同一である
+\item 検証対象の格納レスポンスにetagヘッダかlast-modifiedヘッダが含まれている
+\item 検証対象の格納レスポンスにetagヘッダが含まれている場合、str'のリクエストにif-none-matchヘッダが含まれる
+\item 検証対象の格納レスポンスにlast-modifiedヘッダが含まれている場合、str'のリクエストにif-modified-sinceヘッダが含まれる
 \end{itemize}
 \end{itembox}
 
-\begin{lstlisting}[caption=ある再利用が検証済みか判定する述語, label=code:checkVerification]
-pred checkVerification[str:StateTransaction]{
-	one str.re_res
-
-	some str':StateTransaction |
-	{
-		str' != str
-		one str'.response
-
-		str'.request.current in str.request.current.*next
-		str.re_res.current in str'.response.current.*next
-
-		str'.request.from = str.re_res.from
-		str'.request.to = str.re_res.target.from
-		str'.request.uri = str.request.uri
-
-		some h:HTTPHeader |{
-			h in ETagHeader + LastModifiedHeader
-			h in str.re_res.target.headers
-		}
-
-		(some h:ETagHeader | h in str.re_res.headers) implies
-			(some h:IfNoneMatchHeader | h in str'.request.headers)
-		(some h:LastModifiedHeader | h in str.re_res.headers) implies
-			(some h:IfModifiedSinceHeader | h in str'.request.headers)
-	}
-}
-\end{lstlisting}
-
-また、条件付きリクエストに関するサーバの動作をCode\ref{code:ConditionalRequestTransaction}に示す。
-Code\ref{code:ConditionalRequestTransaction}内で、HTTPTransactionクラスのインスタンスtrが条件付きリクエストである場合、以下を満たす。
+また、条件付きリクエストに関するサーバの動作をAlloy上で表現する。
+HTTPTransactionクラスのインスタンスtrが条件付きリクエストを含む通信である場合、そのリクエストを受信したサーバは以下を満たすように条件を付加する。
 \begin{itemize}
-\item 検証後に、その検証対象のレスポンスのURIを持つ格納レスポンスは一つとなる（5-14行目）
-\item trのレスポンスの状態コードは200か304である（16行目）
-\item trのレスポンスの状態コードが200である場合、trのレスポンスはキャッシュに格納される（18-23行目）
-\item trのレスポンスの状態コードが304である場合、trのレスポンスはキャッシュに格納されない（25-30行目）
+\item 検証後に、その検証対象のレスポンスのURIを持つ格納レスポンスは一つとなる
+\item trのレスポンスの状態コードは200か304である
+\item trのレスポンスの状態コードが200である場合、trのレスポンスはキャッシュに格納される
+\item trのレスポンスの状態コードが304である場合、trのレスポンスはキャッシュに格納されない
 \end{itemize}
-
-\begin{lstlisting}[caption=条件付きリクエストに対するサーバの動作, label=code:ConditionalRequestTransaction]
-fact ConditionalRequestTransaction{
-	all tr:HTTPTransaction |
-		(some h:HTTPHeader | h in IfNoneMatchHeader + IfModifiedSinceHeader and h in tr.request.headers) implies
-		{
-			one res:HTTPResponse |
-			{
-				res.uri = tr.response.uri
-				one cs:CacheState |
-				{
-					res in cs.dif.store
-					cs.eq.cache = tr.request.from.cache
-					cs in tr.afterState
-				}
-			}
-
-			tr.response.statusCode in c200 + c304
-
-			tr.response.statusCode = c200 implies
-			{
-				all cs:CacheState |
-					(cs in tr.afterState and cs.eq.cache = tr.response.to.cache) implies
-						tr.response in cs.dif.store
-			}
-
-			tr.response.statusCode = c304 implies
-			{
-				all cs:CacheState |
-					(cs in tr.afterState and cs.eq.cache = tr.response.to.cache) implies
-						tr.response !in cs.dif.store
-			}
-		}
-}
-\end{lstlisting}
 
 \subsection{中継者の実装}
 提案モデルにおいて中継者はHTTP/HTTPSプロトコルで動作し、プロキシとゲートウェイを包括する。
@@ -478,57 +317,22 @@ fact ConditionalRequestTransaction{
 また、中継者のクラスを継承し、プロキシとゲートウェイのクラスを宣言する。
 これらのクラスは以下のコードで実装される。
 
-\begin{lstlisting}[caption=中継者、プロキシ、ゲートウェイのクラス, label=code:IntermediaryClass]
-abstract sig NetworkEndpoint{}
-abstract sig HTTPConformist extends NetworkEndpoint{cache : lone Cache}
+\begin{lstlisting}[caption=中継者のクラス, label=code:IntermediaryClass]
 abstract sig HTTPIntermediary extends HTTPConformist{}
 sig HTTPProxy extends HTTPIntermediary{}
 sig HTTPGateway extends HTTPIntermediary{}
 \end{lstlisting}
 
-基礎モデルの要素も含め、提案モデルでのネットワーク構成要素のクラス関係は図\ref{fig:NetworkComponent}のようになる。
-
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=450pt]{./fig/NetworkComponent.eps}
-%\caption{提案モデルにおけるネットワーク構成要素のクラス関係}
-%\label{fig:NetworkComponent}
-%\end{figure}
-
-また、この中継者の動作をCode\ref{code:MoveOfIntermediary}のように記述する。
-中継者の動作はリクエストの送信先がHTTPIntermediaryであり、かつ、レスポンスが存在するHTTPTransactionに対する条件として記述する。
+また、この中継者の動作をAlloyで記述する。
+中継者の動作はリクエストの送信先がHTTPIntermediaryであり、かつ、レスポンスが存在するHTTPTransactionに対する条件として記述できる。
 このようなHTTPTransactionのインスタンスtrに対して、以下を満たすHTTPTransactionのインスタンスtr'が少なくとも一つ存在する。
 \begin{itemize}
-\item trとtr'は異なるトランザクションである（5行目）
-\item tr'のリクエストはtrのリクエストの後に発生し、tr'のレスポンスはtrのレスポンスの前に発生する（7,8行目）
-\item tr'のリクエストの送信元は、trのリクエストの送信先である中継者である（9行目）
-\item trとtr'のリクエストのURIは同一である（12行目）
-\item trとtr'のレスポンスのbodyと状態コードは同一である（13,14行目）
+\item trとtr'は異なるトランザクションである
+\item tr'のリクエストはtrのリクエストの後に発生し、tr'のレスポンスはtrのレスポンスの前に発生する
+\item tr'のリクエストの送信元は、trのリクエストの送信先である中継者である
+\item trとtr'のリクエストのURIは同一である
+\item trとtr'のレスポンスのbodyと状態コードは同一である
 \end{itemize}
 ただし、上記の動作は正当なユーザに管理された中継者の動作であり、攻撃者が管理する中継者のふるまいはこの限りではない。
-
-\begin{lstlisting}[caption=中継者の動作, label=code:MoveOfIntermediary]
-fact MoveOfIntermediary{
-	all tr:HTTPTransaction |{
-		tr.request.to in HTTPIntermediary and one tr.response implies{
-			some tr':HTTPTransaction |{
-				tr != tr'				
-				
-				tr'.request.current in tr.request.current.*next
-				tr.response.current in tr'.response.current.*next
-
-				tr.request.to in WebPrincipal.servers implies{
-					tr'.request.from = tr.request.to
-					tr'.request.uri = tr.request.uri
-					tr.response.body = tr'.response.body
-					tr.response.statusCode = tr'.response.statusCode
-				}
-			}
-		}
-	}
-}
-\end{lstlisting}
-
-%\subsection{提案モデルの制限事項}
 
 \end{document}
