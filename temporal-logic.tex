@@ -51,17 +51,10 @@
 しかし、表現の変更後も同様に制限を取り除く拡張は可能である。
 つまり、この変更によって既存モデルの表現能力と拡張性を妨げることはない。
 
-*
-
-*
-
-*
-
-
 \subsection{汎用的な状態クラス}
 \label{sec:state-class}
 導入する状態クラスとしてCode\ref{code:StateClass}に示すStateクラスを定義する。
-flowはStateクラス同士を接続し状態の遷移を、currentはその状態となり得る時刻を表す。
+このStateクラスの要素であるflowはStateクラス同士を接続し状態の遷移を表し、currentはその状態となり得る時刻を表す。
 また、その他の項目としてEqItem、DifItemクラスをStateクラスの変数としている。
 \begin{lstlisting}[caption=Stateクラス, label=code:StateClass]
 abstract sig State{
@@ -80,22 +73,13 @@ sig StateTransaction extends HTTPTransaction{
 
 まず、EqItemは同一の状態遷移上で変化しない要素（以下、「不変項目」とする）を表すクラスである。
 不変項目は複数のStateが存在する場合に、いずれのStateが同一の遷移であるのかを判定するために用いる。
-例えばStateが三つ存在している場合を考えると、図\ref{fig:ProposedModel-3StateFlow}に挙げられるように複数の遷移のパターンが考えられる。
-ここで、EqItemをStateごとに比較をすることで、同一のEqItemを持つStateを同一の遷移に存在すると判定することができる。
-図\ref{fig:ProposedModel-3StateFlow}を例にとると、三状態が同一の遷移に存在する場合にはState0,1,2のEqItemがすべて同一となる。
-一方で、三状態が同一の遷移に存在しない場合にはState0,2のEqItemが同一であり、State1のEqItemはそれらと異なる値をとる。
-
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=400pt]{./fig/ProposedModel-3StateFlow.eps}
-%\caption{3状態間における遷移の一例}
-%\label{fig:ProposedModel-3StateFlow}
-%\end{figure}
+これは、ウェブ上には様々な要素が存在し、それらの要素が各一つずつであるとは限らないためである。
+このような場合には、状態遷移が並列に混在するため、どのインスタンスが同一の遷移に属するかを判定する必要があり、不変項目はこれを可能とする。
 
 また、DifItemは状態遷移において変化する要素（以下、「変化項目」とする）を表すクラスである。
-あるウェブの要素の状態変化を表現する上で、変化する内容をDifItemとして記述する。
+この部分には、あるウェブの要素の状態変化を表現する上で変化しうる内容を記述する。
 
-最後に、これらのStateはCookieモデルと同様にHTTPTransactionに関連付けることで、レスポンスとリクエスト時の状態を表す。
+最後に、これらのStateはCookieモデルと同様にHTTPTransactionに関連付けることで、レスポンスとリクエスト時の状態を表すように配置する。
 具体的に、HTTPTransactionを継承しStateクラスを持つStateTransactionをCode\ref{code:StateClass}の9-12行目で定義している。
 
 このStateクラスを利用してウェブの要素の状態遷移を考えるには、State、EqItem、DifItemクラスを継承するその要素専用のクラスを定義する。
@@ -118,7 +102,7 @@ sig CookieDifItem extends DifItem{
 }
 \end{lstlisting}
 
-\subsection{直前状態を判定する述語}
+\subsection{直前の状態を判定する述語}
 \ref{sec:state-class}で述べたStateクラスに対して、同一の状態遷移上で直前となる状態を判定する述語LastStateを利用できる。
 このLastStateは三つの引数を要し、そのうちの二つはStateでありそれぞれpre、postと表す。
 ここで、述語LastStateはpreがpostの直前の状態である場合に真となるよう作成する。
@@ -148,12 +132,15 @@ pred LastState[pre:State, post:State, str:StateTransaction]{
 }
 \end{lstlisting}
 
-また、この述語LastStateが真となる条件を整理すると以下の三つに分割でき、引数がすべてを満たす場合に述語LastStateも真となる。
+また、述語LastStateが真となる条件は以下のように整理できる。
+\begin{itembox}[l]{LastState}
+LastStateは引数pre,post(Stateクラス), str(StateTransactionクラス)が以下をすべて満たす場合に真となる。
 \begin{itemize}
-\item preとpostの不変項目が同一である（2行目）
-\item postがstrのbeforeState、afterStateのいずれかに属している（3行目）
-\item preの時刻とpostのstrにおける時刻の間の時刻を持つ、不変項目が同一の他の状態が存在しない（5-16行目）
+\item preとpostの不変項目が同一である
+\item postがstrのbeforeState、afterStateのいずれかに属している
+\item preの時刻とpostのstrにおける時刻の間の時刻を持つ、不変項目が同一の他の状態が存在しない
 \end{itemize}
+\end{itembox}
 
 \subsection{初期状態を判定する述語}
 Stateクラスに対して利用可能な、もう一方の述語は初期状態を判定する述語InitialStateである（Code\ref{code:InitialState}参照）。
@@ -167,11 +154,8 @@ pred InitialState[s:State]{
 }
 \end{lstlisting}
 
-%\begin{figure}[htb]
-%\centering
-%\includegraphics[width=400pt]{./fig/InitialState.eps}
-%\caption{InitialStateの動作例}
-%\label{fig:InitialState}
-%\end{figure}
+\begin{itembox}[l]{InitialState}
+InitialStateは引数s(Stateクラス)に対して、sと同じ不変要素を持つStateクラスのインスタンスがすべてsの時刻以降の状態である場合に真となる
+\end{itembox}
 
 \end{document}
