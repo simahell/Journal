@@ -7,7 +7,10 @@
 
 \subsection{基礎モデル}
 \label{sec:based-model}
-Akhaweらによって提案されたウェブセキュリティモデル\cite{based-model}は、リクエストやレスポンスといったイベントの発生順序を表すための時間軸を表す時相論理を実装している。
+Akhaweらによって提案されたウェブセキュリティモデル\cite{based-model}は、ウェブに対する形式手法の導入として、今後の拡張性を重視した基礎的なモデルである。
+このモデルは膨大なウェブの構成要素のうち、利用頻度の高いものを優先して取り上げ包括している。
+
+この基礎モデルでは、リクエストやレスポンスといったイベントの発生順序を表すための時間軸を表す時相論理を実装している。
 まず、時間軸となるTimeクラスをCode\ref{code:time}のように記述する。
 \begin{lstlisting}[caption=基礎モデルにおける時間軸, label=code:time]
 open util/ordering[Time]
@@ -24,7 +27,8 @@ Timeクラスのインスタンスはorderingのオプションにより順序�
 
 \subsection{Cookieを包括するモデル}
 \label{sec:cookie-model}
-Ryckらによって提案されたウェブセキュリティモデル\cite{cookie-model}は、基礎モデルで導入したイベントの時間軸を応用し、イベント発生時のCookieの状態変化を表現できるよう時相論理を拡張している。
+Ryckらによって提案されたウェブセキュリティモデル\cite{cookie-model}は、本研究と同様に基礎モデルの包括内容の不足を指摘し、Cookieを包括するための拡張を施したものである。
+Cookieモデルでは、基礎モデルで導入したイベントの時間軸を応用し、イベント発生時のCookieの状態変化を表現できるよう時相論理を拡張している。
 Cookieに対しての時相論理はCode\ref{code:cookie-model-temporal-logic}に示すコードで実装される。
 \begin{lstlisting}[caption=Cookieに対する時相論理, label=code:cookie-model-temporal-logic]
 sig CSState {
