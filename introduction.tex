@@ -30,41 +30,12 @@
 既存モデル\cite{based-model, cookie-model}では、この問題点に対し独自の記述法を用いて時相論理を表現しているが、実装できている時相論理の能力に制限が強く、この表現能力はウェブの一般的な解析には適さない。
 したがって、ウェブの要素の状態変化を表現するためのAlloy上での時相論理の記述法を考案する必要がある。
 
-
-
-%まず、Akhaweらによる基礎モデル\cite{based-model}はウェブに対する形式手法の導入として、拡張性を重視した基礎的なモデルを提案している。
-%このモデルは膨大なウェブの構成要素のうち、利用頻度の高いものを優先して取り上げ包括している。
-
-%また、Ryckらは本研究と同様に基礎モデルの包括内容の不足を指摘し、Cookieを包括したモデルを提案している\cite{cookie-model}。
-
-
 本研究では、必要な時相論理の記述法を考案し、それを用いてキャッシュを包括するウェブセキュリティモデルを提案する。
 また、キャッシュの基本的な動作や既知の攻撃法を事例として取り上げ、提案モデルの表現能力が既存モデルよりも向上していることを確認する。
 
 \subsection{関連研究}
 \subsubsection{Web Securityの現状}
-\subsubsection{Web Analysis}
-\subsubsection{Other Related Works}
-
-
-現在、形式手法は様々な安全性解析に利用されており、それに向けたセキュリティモデルの構成の整理がなされている\cite{security_modeling_and_analysis}。
-セキュリティモデルは大きく三つの要素に分割でき、「検査対象の構造やふるまい」、「脅威モデル」、「安全性要件」で構成される。
-これにより、想定した「脅威モデル」によって解析対象が「安全性要件」を満たさない状態が存在するか、また存在する場合にはどのような状態であるのかを考察することが形式手法である。
-
-%この形式手法をウェブの安全性解析に用いた研究が存在する\cite{based-model,cookie-model}。
-%これらの研究で実装されたセキュリティモデルを基に本研究では拡張を行っており、詳細は\ref{sec:existing-model}章に述べる。
-
-本研究では形式手法をウェブというシステムの安全性解析に用いているが、形式手法はシステムのみに限らず、様々な検査対象に利用可能な手法である。
-まず、形式手法は様々なネットワークプロトコルの安全性解析に用いられている。
-Arnaudら\cite{modeling-and-verifying-ad-hoc}はアドホックネットワークにおけるルーティングプロトコルに対して、その正確性を確認し、また、その計算速度が多項式時間で可能となる条件を発見している。
-Brusoら\cite{formal-verification-of-privacy-for}は、ICチップの非接触による近距離無線通信\cite{formal-verification-of-privacy-for}を対象に、二つの安全性要件を定義し一般的に用いられているプロトコルがそれらを満たすために必要な条件を発見した。
-
-またその他の形式手法の利用例として、Nearら\cite{finding_security_bugs_in_web}は特定の要素を含むウェブアプリケーションにおいて、必ず安全性を満たすアクセスパターンを発見している。
-Kleinら\cite{sel4_formal_verification_of_an}はseL4というOSのマイクロカーネルに対して、想定されていない動作が存在するか解析し、結果としてそのような動作が起こりえないことを証明した。
-Shinら\cite{towards_formal_analysis_of_the}はAndoroid OSの安全性の確認を行っている。
-Lieら\cite{specifying_and_verifying_hardware_for_tamper}は耐タンパー性を持つプロセッサが耐タンパー性を失う状態の有無を検査し、その状態に陥る条件を発見している。
-
-また、本研究では特にHTTPでのウェブの安全性解析に取り組んでおり、HTTPの運用には様々な脆弱性が存在する。
+また、本研究では主にウェブにおけるHTTPの動作の安全性解析に取り組んでおり、HTTPの運用には様々な脆弱性が存在する。
 Jiaら\cite{bcpattack}はブラウザキャッシュを利用したBrowser Cache Poisoning Attackを発見し、これにより攻撃対象のブラウザに任意の挙動をさせることが可能になる。
 Ryckら\cite{cookie-model}らはCross-site Request Forgeryという攻撃手法を対象とし、ブラウザでのCookieを用いた対策法の考案を行っている。
 Ogawaら\cite{WCD}らは中継者のキャッシュを利用したWeb Cache Deception Attackを発見し、この攻撃により攻撃者は本来アクセス権限を持たないファイルを取得することが可能になる。
@@ -72,4 +43,20 @@ Ogawaら\cite{WCD}らは中継者のキャッシュを利用したWeb Cache Dece
 このような背景から、HTTPSに更なる拡張を行い安全性を向上させた、HTTP Strict Transport Security\cite{hsts}、Public Key Pinning Extension for HTTP\cite{hpkp}が考案され運用が始められている。
 しかし、サーバ管理者による設定が不十分であることにより、これらのプロトコルの持つ安全性が維持されていないという現状が報告されている\cite{hstshpkp}。
 今後、これらのプロトコルの解析を行い、十分な安全性を保障するための設定基準等を定める必要がある。
+
+\subsubsection{Web Analysis}
+本研究では形式手法をウェブというシステムの安全性解析に用いているが、形式手法はシステムのみに限らず、プロトコル単体に対しても利用可能な手法である。
+まず、形式手法は様々なネットワークプロトコルの安全性解析に用いられている。
+Arnaudら\cite{modeling-and-verifying-ad-hoc}はアドホックネットワークにおけるルーティングプロトコルに対して、その正確性を確認し、また、その計算速度が多項式時間で可能となる条件を発見している。
+Brusoら\cite{formal-verification-of-privacy-for}は、ICチップの非接触による近距離無線通信\cite{formal-verification-of-privacy-for}を対象に、二つの安全性要件を定義し一般的に用いられているプロトコルがそれらを満たすために必要な条件を発見した。
+
+\subsubsection{Other Related Works}
+またその他の形式手法の利用例として、Nearら\cite{finding_security_bugs_in_web}は特定の要素を含むウェブアプリケーションにおいて、必ず安全性を満たすアクセスパターンを発見している。
+Kleinら\cite{sel4_formal_verification_of_an}はseL4というOSのマイクロカーネルに対して、想定されていない動作が存在するか解析し、結果としてそのような動作が起こりえないことを証明した。
+Shinら\cite{towards_formal_analysis_of_the}はAndoroid OSの安全性の確認を行っている。
+Lieら\cite{specifying_and_verifying_hardware_for_tamper}は耐タンパー性を持つプロセッサが耐タンパー性を失う状態の有無を検査し、その状態に陥る条件を発見している。
+
+このように、現在、形式手法は様々な安全性解析に利用されており、それに向けたセキュリティモデルの構成の整理がなされている\cite{security_modeling_and_analysis}。
+セキュリティモデルは大きく三つの要素に分割でき、「検査対象の構造やふるまい」、「脅威モデル」、「安全性要件」で構成される。
+これにより、想定した「脅威モデル」によって解析対象が「安全性要件」を満たさない状態が存在するか、また存在する場合にはどのような状態であるのかを考察することが形式手法である。
 \end{document}
