@@ -39,8 +39,28 @@ Alloy上で時相論理を表現することは一般に容易ではない。
 このAlloy 上での時相論理の表現能力を向上させたことが、本研究で解決した課題の直観である。
 この詳細は3節に記載する。これにより提案したキャッシュ付きのモデルおよび上述したような最新の攻撃の評価が可能となった。
 
-
 \subsection{関連研究}
+\subsubsection{Webに対する形式手法}
+
+Chaitanyaら\cite{chaitanya2017formal}はウェブの安全性要件の一つであるCORPの正当性の検証を行っている。
+Chenら\cite{chen2015aspire}はWebアプリケーションのフレームワークとなるASPIREを提案し、その動作をWebに組み込んだ際の安全性検証を行っている。
+Somorovskyら\cite{somorovsky2011all}はWeb上で行われるクラウドコンピューティングの安全性解析を行い、その結果発見された脆弱性に対する対策の考案を行っている。
+
+\subsubsection{他ツールによる形式手法}
+昨今、形式手法においてZ3\cite{Z3}がよく用いられる。
+これを用いた研究として、Peyrardら\cite{peyrard2018towards}はIoTにおけるオープンソースOSであるCon-tikiの安全性解析を行っている。
+Chuら\cite{chu2017cosette}はSQLクエリの等価性を自動的に判定するCOSETTEの正当性の検証を行っている。
+Ayadら\cite{ayad2010multi-prover}は浮動小数点演算を含むプログラムの正当性の解析に取り組んでいる。
+
+しかし、Z3はコマンドラインベースで動作するツールであり、その出力はテキスト形式となる。
+したがって、Webのような複雑なモデルに対して得られた結果の解析は多大な労力を要する。
+一方で、Alloy Analyzerはグラフを用いた結果の出力形式が利用できるため、Webの解析に適している。
+
+\subsubsection{Alloyにおける形式手法}
+またその他の形式手法の利用例として、Kleinら\cite{sel4_formal_verification_of_an}はseL4というOSのマイクロカーネルに対して、想定されていない動作が存在するか解析し、結果としてそのような動作が起こりえないことを証明した。
+Shinら\cite{towards_formal_analysis_of_the}はAndoroid OSの安全性の確認を行っている。
+Lieら\cite{specifying_and_verifying_hardware_for_tamper}は耐タンパー性を持つプロセッサが耐タンパー性を失う状態の有無を検査し、その状態に陥る条件を発見している。
+
 \subsubsection{Web Securityの現状}
 また、本研究では主にウェブにおけるHTTPの動作の安全性解析に取り組んでおり、HTTPの運用には様々な脆弱性が存在する。
 Jiaら\cite{bcpattack}はブラウザキャッシュを利用したBrowser Cache Poisoning Attackを発見し、これにより攻撃対象のブラウザに任意の挙動をさせることが可能になる。
@@ -51,19 +71,11 @@ Ogawaら\cite{WCD}らは中継者のキャッシュを利用したWeb Cache Dece
 しかし、サーバ管理者による設定が不十分であることにより、これらのプロトコルの持つ安全性が維持されていないという現状が報告されている\cite{hstshpkp}。
 今後、これらのプロトコルの解析を行い、十分な安全性を保障するための設定基準等を定める必要がある。
 
-\subsubsection{Web Analysis}
+\subsubsection{ネットワークの解析}
 本研究では形式手法をウェブというシステムの安全性解析に用いているが、形式手法はシステムのみに限らず、プロトコル単体に対しても利用可能な手法である。
 まず、形式手法は様々なネットワークプロトコルの安全性解析に用いられている。
 Arnaudら\cite{modeling-and-verifying-ad-hoc}はアドホックネットワークにおけるルーティングプロトコルに対して、その正確性を確認し、また、その計算速度が多項式時間で可能となる条件を発見している。
 Brusoら\cite{formal-verification-of-privacy-for}は、ICチップの非接触による近距離無線通信\cite{formal-verification-of-privacy-for}を対象に、二つの安全性要件を定義し一般的に用いられているプロトコルがそれらを満たすために必要な条件を発見した。
+また、Nearら\cite{finding_security_bugs_in_web}は特定の要素を含むウェブアプリケーションにおいて、必ず安全性を満たすアクセスパターンを発見している。
 
-\subsubsection{Other Related Works}
-またその他の形式手法の利用例として、Nearら\cite{finding_security_bugs_in_web}は特定の要素を含むウェブアプリケーションにおいて、必ず安全性を満たすアクセスパターンを発見している。
-Kleinら\cite{sel4_formal_verification_of_an}はseL4というOSのマイクロカーネルに対して、想定されていない動作が存在するか解析し、結果としてそのような動作が起こりえないことを証明した。
-Shinら\cite{towards_formal_analysis_of_the}はAndoroid OSの安全性の確認を行っている。
-Lieら\cite{specifying_and_verifying_hardware_for_tamper}は耐タンパー性を持つプロセッサが耐タンパー性を失う状態の有無を検査し、その状態に陥る条件を発見している。
-
-このように、現在、形式手法は様々な安全性解析に利用されており、それに向けたセキュリティモデルの構成の整理がなされている\cite{security_modeling_and_analysis}。
-セキュリティモデルは大きく三つの要素に分割でき、「検査対象の構造やふるまい」、「脅威モデル」、「安全性要件」で構成される。
-これにより、想定した「脅威モデル」によって解析対象が「安全性要件」を満たさない状態が存在するか、また存在する場合にはどのような状態であるのかを考察することが形式手法である。
 \end{document}
